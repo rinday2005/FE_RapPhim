@@ -1,12 +1,12 @@
 import axios from "axios";
 
 const API = axios.create({ 
-  baseURL: "http://localhost:5000/api", // BE port 5000
-  timeout: 10000, // 10 seconds timeout
+  baseURL: "http://localhost:5000/api", // BE chạy port 5000
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Enable credentials for CORS
+  withCredentials: true,
 });
 
 // Request interceptor
@@ -33,12 +33,9 @@ API.interceptors.response.use(
   },
   (error) => {
     console.error('Response Error:', error);
-    
-    // Handle network errors
     if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
       error.message = 'Không thể kết nối đến server. Vui lòng kiểm tra server có đang chạy trên port 5000 không.';
     }
-    
     return Promise.reject(error);
   }
 );

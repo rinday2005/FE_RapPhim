@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import API from '../../api.js';
 import AnimatedSuccessNotification from '../../components/AnimatedSuccessNotification';
 
@@ -13,6 +13,7 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setShowContent(true);
@@ -91,6 +92,10 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const goToForgot = () => {
+    navigate('/reset-password');
   };
 
   const handleGoogleLogin = () => {
@@ -239,6 +244,15 @@ const Login = () => {
                   </svg>
                 </div>
               </div>
+              <div className="text-right -mt-2">
+                <button
+                  type="button"
+                  onClick={goToForgot}
+                  className="text-purple-300 hover:text-purple-200 text-sm underline"
+                >
+                  Quên mật khẩu?
+                </button>
+              </div>
 
               {/* Password Input */}
               <div className="relative group">
@@ -288,6 +302,7 @@ const Login = () => {
                 </Link>
               </p>
             </div>
+          
           </div>
         </div>
       </div>

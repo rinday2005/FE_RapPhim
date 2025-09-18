@@ -79,15 +79,30 @@ const Home = () => {
               <h1 className="text-4xl font-bold animate-gradient-x bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
                 CINEMA HOME
               </h1>
-              <p className="text-gray-300 mt-2">Chào mừng đến với hệ thống quản lý rạp phim</p>
+              <p className="text-gray-300 mt-2">Chào mừng đến với rạp phim Cinema Home </p>
             </div>
             
             <div className="flex items-center space-x-4">
               <div className="text-white text-right">
                 <p className="text-sm text-gray-400">Xin chào,</p>
                 <p className="font-semibold">{user?.fullName}</p>
-                <p className="text-xs text-purple-300">Role: {user?.role}</p>
+                
               </div>
+              <button
+                onClick={() => navigate('/profile')}
+                className="w-10 h-10 rounded-full overflow-hidden border border-white/30 hover:scale-105 transition-transform"
+                title="Quản lý hồ sơ"
+              >
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <img
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'U')}&background=8B5CF6&color=fff`}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </button>
               
               <button
                 onClick={handleLogout}
