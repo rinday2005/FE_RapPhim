@@ -68,8 +68,22 @@ const Profile = () => {
 
       {/* Main Content */}
       <div className="relative z-10 px-4 py-10">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 gap-6">
-          {/* Thông tin hồ sơ (read-only) */}
+        <div className="max-w-4xl mx-auto">
+          {/* Back Button */}
+          <div className="mb-8">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center text-white hover:text-purple-300 transition-colors group"
+            >
+              <svg className="w-6 h-6 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="font-medium">Về trang chủ</span>
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-6">
+            {/* Thông tin hồ sơ (read-only) */}
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
             <h2 className="text-xl font-semibold mb-4">Thông tin hồ sơ</h2>
             <div className="flex items-center gap-6 mb-6">
@@ -122,6 +136,7 @@ const Profile = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>
