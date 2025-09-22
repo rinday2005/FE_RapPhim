@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getHotMovies, getComingSoonMovies, getShowingMovies } from '../../data/movies';
+import API from '../../api';
 import { getActiveBanners } from '../../data/banners';
 import { getActiveCombos } from '../../data/combos';
 import { getShowtimesByMovie } from '../../data/showtimes';
@@ -11,10 +11,13 @@ const Home = () => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const navigate = useNavigate();
 
-  // Get data
-  const hotMovies = getHotMovies();
-  const showingMovies = getShowingMovies();
-  const comingSoonMovies = getComingSoonMovies();
+  const [allMovies, setAllMovies] = useState([]);
+  const [hotMovies, setHotMovies] = useState([]);
+  const [showingMovies, setShowingMovies] = useState([]);
+  const [comingSoonMovies, setComingSoonMovies] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [notifCount, setNotifCount] = useState(0);
   const banners = getActiveBanners();
   const combos = getActiveCombos();
 
@@ -35,7 +38,39 @@ const Home = () => {
     }
 
     setLoading(false);
+    // fake load notif count (placeholder): read from localStorage or default 0
+    try {
+      const n = Number(localStorage.getItem('notifCount') || 0);
+      setNotifCount(Number.isFinite(n) ? n : 0);
+    } catch (_) {}
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await API.get('/movies');
+        const movies = res.data.movies || [];
+        setAllMovies(movies);
+        setHotMovies(movies.filter(m => m.isHot));
+        setShowingMovies(movies.filter(m => m.status === 'showing'));
+        setComingSoonMovies(movies.filter(m => m.status === 'coming_soon' || m.isComingSoon));
+      } catch (e) {
+        console.error('Load movies failed', e);
+      }
+    })();
+  }, []);
+
+  const searchResults = (searchQuery || '').trim().length === 0
+    ? []
+    : allMovies.filter((m) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          (m.title || '').toLowerCase().includes(q) ||
+          (m.director || '').toLowerCase().includes(q) ||
+          (Array.isArray(m.cast) && m.cast.some((a) => (a || '').toLowerCase().includes(q))) ||
+          (Array.isArray(m.genre) && m.genre.some((g) => (g || '').toLowerCase().includes(q)))
+        );
+      }).slice(0, 8);
 
   // Banner auto-slide effect
   useEffect(() => {
@@ -119,6 +154,51 @@ const Home = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Search */}
+              <div className="relative w-72 hidden md:block">
+                <input
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setShowSearchResults(true); }}
+                  onFocus={() => setShowSearchResults(true)}
+                  placeholder="Tìm phim, đạo diễn, diễn viên..."
+                  className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none"
+                />
+                {showSearchResults && searchResults.length > 0 && (
+                  <div className="absolute z-30 mt-2 w-full bg-slate-800/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl max-h-80 overflow-y-auto">
+                    {searchResults.map((m) => (
+                      <button
+                        key={m.movieId}
+                        onMouseDown={() => navigate(`/movies/${m.movieId}`)}
+                        className="w-full text-left px-4 py-3 hover:bg-white/10 text-white flex items-center gap-3"
+                      >
+                        <img src={m.poster} alt={m.title} className="w-10 h-14 object-cover rounded" />
+                        <div className="flex-1">
+                          <div className="font-semibold leading-5 line-clamp-1">{m.title}</div>
+                          <div className="text-xs text-gray-300 line-clamp-1">{(m.genre||[]).join(', ')}</div>
+                        </div>
+                      </button>
+                    ))}
+                    {searchResults.length === 8 && (
+                      <div className="px-4 py-2 text-xs text-gray-400">Hiển thị 8 kết quả đầu</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Notification bell */}
+              <button
+                className="relative w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 text-white"
+                title="Thông báo"
+                onClick={() => navigate('/notifications')}
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 01-3.46 0" />
+                </svg>
+                {notifCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{notifCount}</span>
+                )}
+              </button>
               {user ? (
                 <>
                   <div className="text-white text-right">

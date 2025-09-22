@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMovieById, getShowtimesByMovie } from '../../data/movies';
+import API from '../../api';
 import { getShowtimesByMovie as getMovieShowtimes } from '../../data/showtimes';
 import { getClustersBySystem } from '../../data/cinemas';
 
@@ -13,6 +13,29 @@ const MovieDetail = () => {
   const [selectedCluster, setSelectedCluster] = useState('');
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+
+  const isYouTubeUrl = (url) => {
+    if (!url) return false;
+    return /youtube\.com|youtu\.be/.test(url);
+  };
+
+  const toYouTubeEmbed = (url) => {
+    if (!url) return '';
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes('youtu.be')) {
+        const id = u.pathname.replace('/', '');
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      if (u.hostname.includes('youtube.com')) {
+        const id = u.searchParams.get('v');
+        if (id) return `https://www.youtube.com/embed/${id}`;
+        // fallback for already-embed links
+        if (u.pathname.startsWith('/embed/')) return url;
+      }
+    } catch (_) {}
+    return url;
+  };
 
   useEffect(() => {
     // Check authentication
@@ -28,14 +51,18 @@ const MovieDetail = () => {
       }
     }
 
-    // Load movie data
-    const movieData = getMovieById(movieId);
-    if (movieData) {
-      setMovie(movieData);
-      const movieShowtimes = getMovieShowtimes(movieId);
-      setShowtimes(movieShowtimes);
-    }
-    setLoading(false);
+    (async () => {
+      try {
+        const res = await API.get(`/movies/${movieId}`);
+        setMovie(res.data.movie);
+        const movieShowtimes = getMovieShowtimes(movieId);
+        setShowtimes(movieShowtimes);
+      } catch (e) {
+        console.error('Load movie failed', e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [movieId]);
 
   const formatPrice = (price) => {
@@ -175,20 +202,33 @@ const MovieDetail = () => {
         {/* Movie Hero Section */}
         <div className="px-4 mb-12">
           <div className="max-w-7xl mx-auto">
-            {/* Hero Background */}
+            {/* Trailer Hero */}
             <div className="relative h-[70vh] rounded-3xl overflow-hidden shadow-2xl mb-8">
-              <div 
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{ 
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url(${movie.poster})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-                
-                {/* Movie Info Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">
+              {/* Video/Iframe layer */}
+              {isYouTubeUrl(movie.trailer) ? (
+                <iframe
+                  title="trailer"
+                  src={`${toYouTubeEmbed(movie.trailer)}?rel=0&autoplay=1&mute=1&playsinline=1`}
+                  className="absolute inset-0 w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  className="absolute inset-0 w-full h-full object-cover"
+                  src={movie.trailer}
+                  controls
+                  playsInline
+                  autoPlay
+                  muted
+                  loop
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+
+              {/* Movie Info Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">
                   <div className="max-w-4xl">
                     <div className="flex items-center space-x-4 mb-4">
                       {movie.isHot && (
@@ -257,7 +297,6 @@ const MovieDetail = () => {
                       </button>
                     </div>
                   </div>
-                </div>
               </div>
             </div>
 
