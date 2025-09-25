@@ -9,8 +9,6 @@ import EditProfile from './pages/Auth/EditProfile';
 import Home from './pages/Home/Home';
 import MovieDetail from './pages/Movies/MovieDetail';
 import Dashboard from './pages/Admin/Dashboard';
-import AdminUsersList from './pages/Admin/Users/List';
-import AdminUserDetail from './pages/Admin/Users/Detail';
 import AdminMoviesList from './pages/Admin/Movies/List';
 import AdminMovieForm from './pages/Admin/Movies/Form';
 import AdminMovieDetail from './pages/Admin/Movies/Detail';
@@ -34,16 +32,6 @@ function App() {
               <Route path="/admin" element={
                 <ProtectedRoute requireAdmin={true}>
                   <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/users" element={
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminUsersList />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/users/:id" element={
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminUserDetail />
                 </ProtectedRoute>
               } />
               <Route path="/admin/movies" element={
