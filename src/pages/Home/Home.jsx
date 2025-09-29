@@ -166,7 +166,7 @@ const Home = () => {
                 {showSearchResults && searchResults.length > 0 && (
                   <div className="absolute z-30 mt-2 w-full bg-slate-800/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl max-h-80 overflow-y-auto">
                     {searchResults.map((m) => (
-                      <button
+        <button
                         key={m.movieId}
                         onMouseDown={() => navigate(`/movies/${m.movieId}`)}
                         className="w-full text-left px-4 py-3 hover:bg-white/10 text-white flex items-center gap-3"
@@ -176,7 +176,7 @@ const Home = () => {
                           <div className="font-semibold leading-5 line-clamp-1">{m.title}</div>
                           <div className="text-xs text-gray-300 line-clamp-1">{(m.genre||[]).join(', ')}</div>
                         </div>
-                      </button>
+        </button>
                     ))}
                     {searchResults.length === 8 && (
                       <div className="px-4 py-2 text-xs text-gray-400">Hiển thị 8 kết quả đầu</div>
@@ -235,17 +235,17 @@ const Home = () => {
                   >
                     Đăng nhập
                   </button>
-                  <button
+                <button
                     onClick={() => navigate('/register')}
                     className="px-6 py-2 bg-white/10 border border-white/30 rounded-xl text-white hover:bg-white/20 transition-all duration-300 hover:scale-105"
                   >
                     Đăng ký
-                  </button>
+                </button>
                 </div>
               )}
             </div>
           </div>
-        </div>
+              </div>
 
         {/* Animated Banner Carousel */}
         <div className="px-4 mb-12">
@@ -275,9 +275,9 @@ const Home = () => {
                         <button className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-semibold text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                           {banner.buttonText || 'Khám phá ngay'}
                         </button>
-                      </div>
-                    </div>
-                  </div>
+              </div>
+              </div>
+              </div>
                 ))}
               </div>
               
@@ -474,7 +474,7 @@ const Home = () => {
                       {movie.genre.slice(0, 2).map((g, index) => (
                         <span key={index} className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">
                           {g}
-                        </span>
+              </span>
                       ))}
                     </div>
                   </div>
@@ -498,7 +498,7 @@ const Home = () => {
                 Xem tất cả →
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {combos.map((combo) => (
                 <div key={combo.comboId} className="group bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/20 hover:scale-105 transition-all duration-300 cursor-pointer">
@@ -522,7 +522,7 @@ const Home = () => {
                         <span className="text-white font-bold text-lg">{formatPrice(combo.price)}</span>
                         <span className="text-gray-400 text-sm line-through">{formatPrice(combo.originalPrice)}</span>
                       </div>
-                      <button 
+            <button
                         onClick={() => !user && navigate('/login')}
                         className={`px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
                           user 
@@ -532,7 +532,7 @@ const Home = () => {
                         disabled={!user}
                       >
                         {user ? 'Mua ngay' : 'Cần đăng nhập'}
-                      </button>
+            </button>
                     </div>
                   </div>
                 </div>

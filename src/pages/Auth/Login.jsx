@@ -58,14 +58,15 @@ const Login = () => {
       setShowSuccess(true);
       console.log('Login successful:', response.data.message);
       
-      // Redirect based on role sau 1 giây
+      // Redirect based on role after 1s
       setTimeout(() => {
-        if (response.data.role === 'admin' || response.data.role === 'superadmin') {
-          window.location.href = '/admin';
+        const role = response.data.role;
+        if (role === 'admin' || role === 'superadmin') {
+          navigate('/admin');
         } else {
-          window.location.href = '/';
+          navigate('/');
         }
-      }, 2000);
+      }, 1000);
     } catch (err) {
       console.error('Login error:', err);
       

@@ -19,7 +19,9 @@ const empty = {
   imdbRating: '',
   isHot: false,
   isComingSoon: false,
-  status: 'showing'
+  status: 'showing',
+  // Showtimes to be created with each movie (optional)
+  showtimes: [] // { date, clusterId, hallId, startTime, endTime, priceRegular, priceVip }
 };
 
 const Form = () => {
@@ -77,6 +79,12 @@ const Form = () => {
     }
     if (!values.poster && !values.posterFile) e.poster = 'Chọn ảnh hoặc nhập URL';
     if (!values.trailer && !values.trailerFile) e.trailer = 'Tải trailer hoặc nhập URL';
+    // Optional basic validation for showtimes
+    (values.showtimes || []).forEach((s, i) => {
+      if (!s.date || !s.clusterId || !s.hallId || !s.startTime || !s.endTime) {
+        e[`showtimes_${i}`] = 'Thiếu thông tin lịch chiếu';
+      }
+    });
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -101,6 +109,14 @@ const Form = () => {
     };
     const fd = new FormData();
     Object.entries(base).forEach(([k, v]) => fd.append(k, Array.isArray(v) ? v.join(',') : v));
+    // attach showtimes JSON if provided
+    if ((values.showtimes || []).length) {
+      fd.append('showtimes', JSON.stringify(values.showtimes.map(s => ({
+        ...s,
+        priceRegular: Number(s.priceRegular || 0),
+        priceVip: Number(s.priceVip || 0)
+      }))));
+    }
     if (values.posterFile) fd.append('poster', values.posterFile);
     else if (values.poster) fd.append('poster', values.poster.trim());
     if (values.trailerFile) fd.append('trailer', values.trailerFile);
@@ -126,6 +142,21 @@ const Form = () => {
     const file = e.target.files?.[0];
     setValues((v) => ({ ...v, [key]: file }));
   };
+  const addShowtime = () => setValues(v => ({
+    ...v,
+    showtimes: [
+      ...v.showtimes,
+      { date: '', clusterId: '', hallId: '', startTime: '', endTime: '', priceRegular: 100000, priceVip: 140000 }
+    ]
+  }));
+  const updateShowtime = (idx, key, val) => setValues(v => ({
+    ...v,
+    showtimes: v.showtimes.map((s, i) => i === idx ? { ...s, [key]: val } : s)
+  }));
+  const removeShowtime = (idx) => setValues(v => ({
+    ...v,
+    showtimes: v.showtimes.filter((_, i) => i !== idx)
+  }));
 
   const [notify, setNotify] = useState(null);
 
@@ -288,6 +319,43 @@ const Form = () => {
             </select>
           </div>
 
+          {/* Showtimes Editor */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-gray-300 mb-1">Lịch chiếu</label>
+              <button type="button" onClick={addShowtime} className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/50 text-green-300 hover:bg-green-500/30">+ Thêm lịch</button>
+            </div>
+            <div className="space-y-3">
+              {(values.showtimes || []).map((s, idx) => (
+                <div key={idx} className="grid grid-cols-1 md:grid-cols-6 gap-2 bg-white/5 border border-white/10 rounded-xl p-3">
+                  <div>
+                    <input type="date" value={s.date} onChange={(e)=>updateShowtime(idx,'date', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                  </div>
+                  <div>
+                    <input placeholder="Cụm rạp (clusterId)" value={s.clusterId} onChange={(e)=>updateShowtime(idx,'clusterId', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                  </div>
+                  <div>
+                    <input placeholder="Phòng (hallId)" value={s.hallId} onChange={(e)=>updateShowtime(idx,'hallId', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                  </div>
+                  <div>
+                    <input type="time" value={s.startTime} onChange={(e)=>updateShowtime(idx,'startTime', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                  </div>
+                  <div>
+                    <input type="time" value={s.endTime} onChange={(e)=>updateShowtime(idx,'endTime', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="number" min="0" placeholder="Giá thường" value={s.priceRegular} onChange={(e)=>updateShowtime(idx,'priceRegular', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                    <input type="number" min="0" placeholder="Giá VIP" value={s.priceVip} onChange={(e)=>updateShowtime(idx,'priceVip', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                  </div>
+                  <div className="md:col-span-6 flex items-center justify-between">
+                    {errors[`showtimes_${idx}`] && <p className="text-red-300 text-sm">{errors[`showtimes_${idx}`]}</p>}
+                    <button type="button" onClick={()=>removeShowtime(idx)} className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/50 text-red-300 hover:bg-red-500/30">Xóa</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="flex items-center justify-end gap-3 pt-2">
             <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-gray-200 hover:bg-white/20">Hủy</button>
             <button type="submit" className="px-4 py-2 rounded-xl bg-blue-500/20 border border-blue-500/50 text-blue-300 hover:bg-blue-500/30">{isEdit ? 'Lưu thay đổi' : 'Thêm phim'}</button>
@@ -305,6 +373,5 @@ const Form = () => {
 };
 
 export default Form;
-
 
 

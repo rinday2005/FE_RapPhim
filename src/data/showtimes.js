@@ -11,7 +11,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 280,
     totalSeats: 300,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 120000, vip: 168000 }
   },
   {
     showtimeId: 'ST002',
@@ -24,7 +25,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 250,
     totalSeats: 300,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 120000, vip: 168000 }
   },
   {
     showtimeId: 'ST003',
@@ -37,7 +39,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 200,
     totalSeats: 300,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 120000, vip: 168000 }
   },
   {
     showtimeId: 'ST004',
@@ -50,7 +53,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 100,
     totalSeats: 120,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 100000, vip: 140000 }
   },
   {
     showtimeId: 'ST005',
@@ -63,7 +67,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 80,
     totalSeats: 120,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 100000, vip: 140000 }
   },
   {
     showtimeId: 'ST006',
@@ -76,7 +81,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 150,
     totalSeats: 200,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 80000, vip: 112000 }
   },
   {
     showtimeId: 'ST007',
@@ -89,7 +95,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 120,
     totalSeats: 200,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 80000, vip: 112000 }
   },
   {
     showtimeId: 'ST008',
@@ -102,7 +109,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 300,
     totalSeats: 350,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 150000, vip: 210000 }
   },
   {
     showtimeId: 'ST009',
@@ -115,7 +123,8 @@ export const showtimeData = [
     date: '2024-01-15',
     availableSeats: 60,
     totalSeats: 80,
-    isActive: true
+    isActive: true,
+    priceBySeatType: { regular: 200000, vip: 280000 }
   }
 ];
 

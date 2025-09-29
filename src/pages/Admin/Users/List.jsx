@@ -58,23 +58,7 @@ const UsersList = () => {
                       <td className="py-3 px-2">{u.email}</td>
                       <td className="py-3 px-2">{u.phone}</td>
                       <td className="py-3 px-2">
-                        <select
-                          value={u.role}
-                          onChange={async (e) => {
-                            const role = e.target.value;
-                            try {
-                              await API.put(`/users/${u._id || u.id}/role`, { role });
-                              setUsers((prev) => prev.map((x) => (x._id === u._id || x.id === u.id ? { ...x, role } : x)));
-                            } catch (err) {
-                              alert(err?.response?.data?.message || err.message || 'Cập nhật role thất bại');
-                            }
-                          }}
-                          className="px-2 py-1 rounded bg-white text-black border border-gray-300 text-xs"
-                        >
-                          <option value="user">user</option>
-                          <option value="admin">admin</option>
-                          <option value="superadmin">superadmin</option>
-                        </select>
+                        <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-xs uppercase">{u.role}</span>
                       </td>
                       <td className="py-3 px-2">{u.createdAt ? new Date(u.createdAt).toLocaleString('vi-VN') : '-'}</td>
                       <td className="py-3 px-2 text-right">
@@ -107,5 +91,4 @@ const UsersList = () => {
 };
 
 export default UsersList;
-
 

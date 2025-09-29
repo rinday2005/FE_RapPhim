@@ -38,8 +38,7 @@ const UserDetail = () => {
     try {
       // profile update
       await API.put('/users/me', { fullName: form.fullName, phone: form.phone });
-      // role update (admin only)
-      if (user.role !== form.role) await API.put(`/users/${id}/role`, { role: form.role });
+      // role fixed - do not update via UI
       alert('Cập nhật thành công');
       navigate('/admin/users');
     } catch (e) {
@@ -85,11 +84,7 @@ const UserDetail = () => {
             </div>
             <div>
               <label className="block text-gray-300 mb-1">Role</label>
-              <select value={form.role} onChange={onChange('role')} className="w-full px-4 py-2 rounded-xl bg-white text-black border border-gray-300 focus:outline-none">
-                <option value="user">user</option>
-                <option value="admin">admin</option>
-                <option value="superadmin">superadmin</option>
-              </select>
+              <input value={user.role} disabled className="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-gray-400" />
             </div>
             <div className="flex items-center justify-end gap-3 pt-2">
               <button onClick={onDelete} className="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/50 text-red-300 hover:bg-red-500/30">Xóa</button>
@@ -103,5 +98,4 @@ const UserDetail = () => {
 };
 
 export default UserDetail;
-
 
