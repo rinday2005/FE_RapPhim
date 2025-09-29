@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAdminMovies } from '../../../context/AdminMoviesContext';
 import AnimatedSuccessNotification from '../../../components/AnimatedSuccessNotification';
+import { getActiveCinemaSystems, getClustersBySystem, getTheatersByCluster } from '../../../data/cinemas';
+import API from '../../../api';
 
 const empty = {
   movieId: '',
@@ -34,6 +36,7 @@ const Form = () => {
 
   const [values, setValues] = useState(empty);
   const [errors, setErrors] = useState({});
+  const [selectedSystem, setSelectedSystem] = useState('');
   const GENRE_OPTIONS = [
     'Hành động', 'Phiêu lưu', 'Khoa học viễn tưởng', 'Siêu anh hùng', 'Drama', 'Tội phạm', 'Kinh dị', 'Hài', 'Tâm lý', 'Lãng mạn', 'Hoạt hình'
   ];
@@ -84,6 +87,9 @@ const Form = () => {
       if (!s.date || !s.clusterId || !s.hallId || !s.startTime || !s.endTime) {
         e[`showtimes_${i}`] = 'Thiếu thông tin lịch chiếu';
       }
+      if (Number(s.priceRegular) <= 0 || Number(s.priceVip) <= 0) {
+        e[`showtimes_${i}`] = (e[`showtimes_${i}`] ? e[`showtimes_${i}`] + ' ' : '') + 'Giá vé phải > 0';
+      }
     });
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -123,14 +129,38 @@ const Form = () => {
     else if (values.trailer) fd.append('trailer', values.trailer.trim());
 
     try {
-    if (isEdit) {
+      if (isEdit) {
         await updateMovie(movieId, fd);
+        // If showtimes provided, sync to backend (best-effort)
+        if ((values.showtimes || []).length) {
+          try {
+            const res = await API.post('/showtimes', {
+              movieId,
+              showtimes: values.showtimes
+            });
+            console.log('Showtimes synced for update:', res.data);
+          } catch (err) {
+            console.warn('Sync showtimes failed:', err?.response?.data || err?.message);
+          }
+        }
         setNotify({ type: 'success', msg: 'Cập nhật phim thành công' });
-      navigate(`/admin/movies/${movieId}`);
-    } else {
-        await addMovie(fd);
+        navigate(`/admin/movies/${movieId}`);
+      } else {
+        const created = await addMovie(fd);
+        // If showtimes provided, sync to backend (best-effort)
+        if ((values.showtimes || []).length && created?.movieId) {
+          try {
+            const res = await API.post('/showtimes', {
+              movieId: created.movieId,
+              showtimes: values.showtimes
+            });
+            console.log('Showtimes synced for create:', res.data);
+          } catch (err) {
+            console.warn('Sync showtimes failed:', err?.response?.data || err?.message);
+          }
+        }
         setNotify({ type: 'success', msg: 'Thêm phim thành công' });
-      navigate('/admin/movies');
+        navigate('/admin/movies');
       }
     } catch (e) {
       setNotify({ type: 'error', msg: e?.response?.data?.message || e.message || 'Thao tác thất bại' });
@@ -327,15 +357,45 @@ const Form = () => {
             </div>
             <div className="space-y-3">
               {(values.showtimes || []).map((s, idx) => (
-                <div key={idx} className="grid grid-cols-1 md:grid-cols-6 gap-2 bg-white/5 border border-white/10 rounded-xl p-3">
+                <div key={idx} className="grid grid-cols-1 md:grid-cols-7 gap-2 bg-white/5 border border-white/10 rounded-xl p-3">
                   <div>
                     <input type="date" value={s.date} onChange={(e)=>updateShowtime(idx,'date', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
                   </div>
                   <div>
-                    <input placeholder="Cụm rạp (clusterId)" value={s.clusterId} onChange={(e)=>updateShowtime(idx,'clusterId', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                    <select
+                      value={s.systemId || ''}
+                      onChange={(e)=>{ updateShowtime(idx,'systemId', e.target.value); updateShowtime(idx,'clusterId', ''); updateShowtime(idx,'hallId', ''); }}
+                      className="w-full px-3 py-2 rounded-lg bg-white text-black border border-gray-300 focus:outline-none"
+                    >
+                      <option value="">Chọn hệ thống</option>
+                      {getActiveCinemaSystems().map(sys => (
+                        <option key={sys.systemId} value={sys.systemId}>{sys.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
-                    <input placeholder="Phòng (hallId)" value={s.hallId} onChange={(e)=>updateShowtime(idx,'hallId', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
+                    <select
+                      value={s.clusterId}
+                      onChange={(e)=>updateShowtime(idx,'clusterId', e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-white text-black border border-gray-300 focus:outline-none"
+                    >
+                      <option value="">Chọn cụm rạp</option>
+                      {(s.systemId ? getClustersBySystem(s.systemId) : []).map(cl => (
+                        <option key={cl.clusterId} value={cl.clusterId}>{cl.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <select
+                      value={s.hallId}
+                      onChange={(e)=>updateShowtime(idx,'hallId', e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-white text-black border border-gray-300 focus:outline-none"
+                    >
+                      <option value="">Chọn phòng</option>
+                      {(s.clusterId ? getTheatersByCluster(s.clusterId) : []).map(h => (
+                        <option key={h.hallId} value={h.hallId}>{h.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <input type="time" value={s.startTime} onChange={(e)=>updateShowtime(idx,'startTime', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
@@ -343,11 +403,11 @@ const Form = () => {
                   <div>
                     <input type="time" value={s.endTime} onChange={(e)=>updateShowtime(idx,'endTime', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="md:col-span-2 grid grid-cols-2 gap-2">
                     <input type="number" min="0" placeholder="Giá thường" value={s.priceRegular} onChange={(e)=>updateShowtime(idx,'priceRegular', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
                     <input type="number" min="0" placeholder="Giá VIP" value={s.priceVip} onChange={(e)=>updateShowtime(idx,'priceVip', e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none"/>
                   </div>
-                  <div className="md:col-span-6 flex items-center justify-between">
+                  <div className="md:col-span-7 flex items-center justify-between">
                     {errors[`showtimes_${idx}`] && <p className="text-red-300 text-sm">{errors[`showtimes_${idx}`]}</p>}
                     <button type="button" onClick={()=>removeShowtime(idx)} className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/50 text-red-300 hover:bg-red-500/30">Xóa</button>
                   </div>

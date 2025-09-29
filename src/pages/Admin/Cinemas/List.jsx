@@ -75,3 +75,5 @@ const CinemasList = () => {
 export default CinemasList;
 
 
+
+

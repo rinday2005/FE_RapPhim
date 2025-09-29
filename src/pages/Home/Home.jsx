@@ -8,6 +8,7 @@ import { getShowtimesByMovie } from '../../data/showtimes';
 const Home = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const navigate = useNavigate();
 
@@ -25,12 +26,14 @@ const Home = () => {
     // Kiểm tra authentication
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
+    const storedRole = localStorage.getItem('role');
 
     if (token && userData) {
       // Parse user data nếu đã đăng nhập
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
+        setRole(storedRole || null);
       } catch (error) {
         console.error('Error parsing user data:', error);
         localStorage.clear();
@@ -49,11 +52,16 @@ const Home = () => {
     (async () => {
       try {
         const res = await API.get('/movies');
-        const movies = res.data.movies || [];
+        const movies = (res.data.movies || []).map((m) => ({
+          ...m,
+          isHot: m?.isHot === true || m?.isHot === 'true' || m?.isHot === 1,
+          isComingSoon: m?.isComingSoon === true || m?.isComingSoon === 'true' || m?.isComingSoon === 1,
+          status: m?.status === 'coming_soon' ? 'coming_soon' : 'showing'
+        }));
         setAllMovies(movies);
-        setHotMovies(movies.filter(m => m.isHot));
+        setHotMovies(movies.filter(m => m.isHot === true));
         setShowingMovies(movies.filter(m => m.status === 'showing'));
-        setComingSoonMovies(movies.filter(m => m.status === 'coming_soon' || m.isComingSoon));
+        setComingSoonMovies(movies.filter(m => m.status === 'coming_soon'));
       } catch (e) {
         console.error('Load movies failed', e);
       }
@@ -220,6 +228,14 @@ const Home = () => {
                       />
                     )}
                   </button>
+                  {(role === 'admin' || role === 'superadmin') && (
+                    <button
+                      onClick={handleGoToAdmin}
+                      className="px-6 py-2 bg-blue-500/20 border border-blue-500/50 rounded-xl text-blue-300 hover:bg-blue-500/30 transition-all duration-300 hover:scale-105"
+                    >
+                      Về Dashboard
+                    </button>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="px-6 py-2 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 hover:bg-red-500/30 transition-all duration-300 hover:scale-105"

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../../api";
-import { getShowtimesByMovie as getMovieShowtimes } from "../../data/showtimes";
 import {
   getActiveCinemaSystems,
   getClustersBySystem,
   getTheatersByCluster,
+  getActiveClusters,
+  getActiveTheaters,
 } from "../../data/cinemas";
 // import { getClustersBySystem } from "../../data/cinemas";
 
@@ -66,18 +67,17 @@ const MovieDetail = () => {
         const res = await API.get(`/movies/${movieId}`);
         setMovie(res.data.movie);
         // Dynamic + static showtimes merge
-        const [staticList, apiRes] = await Promise.all([
-          Promise.resolve(getMovieShowtimes(movieId)),
-          API.get(`/showtimes`, { params: { movieId } }).catch(() => ({ data: { showtimes: [] } })),
-        ]);
+        const apiRes = await API.get(`/showtimes`, { params: { movieId } }).catch(() => ({ data: { showtimes: [] } }));
         const dynamicList = apiRes?.data?.showtimes || [];
-        const merged = [...dynamicList, ...staticList];
-        setShowtimes(merged);
-        // Ensure a valid selected date exists based on available showtimes
-        const dates = Array.from(new Set(merged.map((s) => s.date))).sort();
-        if (dates.length && !dates.includes(selectedDate)) {
-          setSelectedDate(dates[0]);
-        }
+        const normalize = (s) => ({
+          ...s,
+          date: String(s.date || '').slice(0, 10),
+          clusterId: String(s.clusterId || ''),
+          hallId: String(s.hallId || ''),
+          startTime: String(s.startTime || ''),
+          endTime: String(s.endTime || ''),
+        });
+        setShowtimes(dynamicList.map(normalize));
       } catch (e) {
         console.error("Load movie failed", e);
       } finally {
@@ -85,6 +85,15 @@ const MovieDetail = () => {
       }
     })();
   }, [movieId]);
+
+  // Keep selectedDate in sync with available showtimes
+  useEffect(() => {
+    const dates = Array.from(new Set(showtimes.map((s) => s.date))).sort();
+    if (dates.length === 0) return;
+    if (!selectedDate || !dates.includes(selectedDate)) {
+      setSelectedDate(dates[0]);
+    }
+  }, [showtimes, selectedDate]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -116,6 +125,39 @@ const MovieDetail = () => {
       window.open(movie.trailer, "_blank");
     }
   };
+
+  // Cinema hierarchy options (fallback to full lists so dropdowns are never empty)
+  const systems = getActiveCinemaSystems();
+  const clusters = selectedSystem ? getClustersBySystem(selectedSystem) : getActiveClusters();
+  const halls = selectedCluster ? getTheatersByCluster(selectedCluster) : getActiveTheaters();
+
+  // Map clusterId to labels (system + cluster names) for grouped rendering
+  const clusterMeta = (() => {
+    const map = new Map();
+    const clustersAll = getActiveClusters();
+    const systemById = new Map(systems.map((s) => [s.systemId, s]));
+    clustersAll.forEach((cl) => {
+      const sys = systemById.get(cl.systemId);
+      map.set(cl.clusterId, {
+        systemId: cl.systemId,
+        systemName: sys?.name || "Hệ thống",
+        clusterName: cl.name,
+      });
+    });
+    return map;
+  })();
+
+  // Default selections derived from showtimes when empty
+  useEffect(() => {
+    if (!showtimes.length) return;
+    // system/cluster/hall from first showtime if not set
+    const first = showtimes[0];
+    if (!selectedCluster && first.clusterId) setSelectedCluster(first.clusterId);
+    if (!selectedHall && first.hallId) setSelectedHall(first.hallId);
+    // derive system from cluster meta
+    const meta = clusterMeta.get(first.clusterId);
+    if (!selectedSystem && meta?.systemId) setSelectedSystem(meta.systemId);
+  }, [showtimes]);
 
   if (loading) {
     return (
@@ -149,26 +191,9 @@ const MovieDetail = () => {
   });
 
   const availableDates = [...new Set(showtimes.map((s) => s.date))].sort();
+  // Guard: if merged contains no showtimes, ensure UI indicates empty
+  const hasShowtimes = showtimes.length > 0;
 
-  // Cinema hierarchy options
-  const systems = getActiveCinemaSystems();
-  const clusters = selectedSystem ? getClustersBySystem(selectedSystem) : [];
-  const halls = selectedCluster ? getTheatersByCluster(selectedCluster) : [];
-
-  // Map clusterId to labels (system + cluster names) for grouped rendering
-  const clusterMeta = (() => {
-    const map = new Map();
-    systems.forEach((sys) => {
-      (sys.clusters || []).forEach((cl) => {
-        map.set(cl.clusterId, {
-          systemId: sys.systemId,
-          systemName: sys.name,
-          clusterName: cl.name,
-        });
-      });
-    });
-    return map;
-  })();
 
   // Group filtered showtimes by cluster, optionally by hall
   const groupedByCluster = (() => {

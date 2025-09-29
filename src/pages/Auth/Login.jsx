@@ -17,6 +17,16 @@ const Login = () => {
 
   useEffect(() => {
     setShowContent(true);
+    // Nếu đã đăng nhập và là admin, chuyển thẳng đến dashboard
+    try {
+      const storedToken = localStorage.getItem('token');
+      const storedRole = localStorage.getItem('role');
+      if (storedToken && (storedRole === 'admin' || storedRole === 'superadmin')) {
+        navigate('/admin', { replace: true });
+      }
+    } catch (_) {
+      // ignore
+    }
   }, []);
 
   const handleChange = (e) => {
