@@ -40,4 +40,22 @@ API.interceptors.response.use(
   }
 );
 
+// Helper function to resolve asset URLs
+export const resolveAssetUrl = (path) => {
+  if (!path) return '';
+  
+  // If it's already a full URL, return as is
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  
+  // If it's a relative path, make it absolute from the backend
+  if (path.startsWith('/')) {
+    return `http://localhost:5000${path}`;
+  }
+  
+  // If it's a relative path without leading slash, add it
+  return `http://localhost:5000/${path}`;
+};
+
 export default API;

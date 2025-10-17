@@ -1,194 +1,119 @@
-// Cinema system data for frontend
-export const cinemaSystemData = [
+// Cinema systems → clusters → halls (frontend static catalog)
+
+export const cinemaSystems = [
   {
-    systemId: 'SYS001',
-    name: 'CGV Cinemas',
-    logo: 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=100&h=50&fit=crop',
-    address: 'Hệ thống rạp chiếu phim CGV',
-    website: 'https://cgv.vn',
-    phone: '1900 6017',
-    description: 'Hệ thống rạp chiếu phim hàng đầu Việt Nam với công nghệ hiện đại',
-    isActive: true
+    systemId: "CGV",
+    name: "CGV Cinemas",
+    logo: "/images/cgv-logo.png",
+    clusters: [
+      {
+        clusterId: "CGV_A01",
+        name: "CGV Vincom Đồng Khởi",
+        address: "72 Lê Thánh Tôn, Q.1, TP.HCM",
+        halls: [
+          { hallId: "A01_H1", name: "Phòng 1", seats: 120, screenType: "2D" },
+          { hallId: "A01_H2", name: "Phòng 2", seats: 160, screenType: "IMAX" },
+          { hallId: "A01_H3", name: "Phòng 3", seats: 100, screenType: "3D" },
+        ],
+      },
+      {
+        clusterId: "CGV_A02",
+        name: "CGV Landmark 81",
+        address: "720A Điện Biên Phủ, Bình Thạnh, TP.HCM",
+        halls: [
+          {
+            hallId: "A02_H1",
+            name: "Phòng 1",
+            seats: 180,
+            screenType: "IMAX Laser",
+          },
+          { hallId: "A02_H2", name: "Phòng 2", seats: 140, screenType: "2D" },
+        ],
+      },
+    ],
   },
   {
-    systemId: 'SYS002',
-    name: 'Lotte Cinema',
-    logo: 'https://images.unsplash.com/photo-1489599805359-8b5a2a2b5b5b?w=100&h=50&fit=crop',
-    address: 'Hệ thống rạp chiếu phim Lotte',
-    website: 'https://lottecinemavn.com',
-    phone: '1900 2224',
-    description: 'Rạp chiếu phim chất lượng cao với không gian sang trọng',
-    isActive: true
+    systemId: "BHD",
+    name: "BHD Star",
+    logo: "/images/bhd-logo.png",
+    clusters: [
+      {
+        clusterId: "BHD_B01",
+        name: "BHD Bitexco",
+        address: "2 Hải Triều, Q.1, TP.HCM",
+        halls: [
+          { hallId: "B01_H1", name: "Phòng 1", seats: 110, screenType: "2D" },
+          { hallId: "B01_H2", name: "Phòng 2", seats: 130, screenType: "3D" },
+        ],
+      },
+    ],
   },
   {
-    systemId: 'SYS003',
-    name: 'Galaxy Cinema',
-    logo: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=50&fit=crop',
-    address: 'Hệ thống rạp chiếu phim Galaxy',
-    website: 'https://galaxycine.vn',
-    phone: '1900 2224',
-    description: 'Rạp chiếu phim với giá vé hợp lý và chất lượng tốt',
-    isActive: true
-  }
+    systemId: "LOTTE",
+    name: "Lotte Cinema",
+    logo: "/images/lotte-logo.png",
+    clusters: [
+      {
+        clusterId: "LOT_C01",
+        name: "Lotte Gò Vấp",
+        address: "242 Nguyễn Văn Lượng, Gò Vấp, TP.HCM",
+        halls: [
+          { hallId: "C01_H1", name: "Phòng 1", seats: 120, screenType: "2D" },
+          { hallId: "C01_H2", name: "Phòng 2", seats: 90, screenType: "2D" },
+        ],
+      },
+    ],
+  },
 ];
 
-export const cinemaClusterData = [
-  {
-    clusterId: 'CLU001',
-    systemId: 'SYS001',
-    name: 'CGV Vincom Center',
-    address: '72 Lê Thánh Tôn, Quận 1, TP.HCM',
-    phone: '028 3822 8888',
-    facilities: ['IMAX', '4DX', 'STARIUM', 'GOLD CLASS'],
-    parking: true,
-    foodCourt: true,
-    isActive: true
-  },
-  {
-    clusterId: 'CLU002',
-    systemId: 'SYS001',
-    name: 'CGV Landmark 81',
-    address: '208 Nguyễn Hữu Cảnh, Quận Bình Thạnh, TP.HCM',
-    phone: '028 3822 8888',
-    facilities: ['IMAX', '4DX', 'STARIUM'],
-    parking: true,
-    foodCourt: true,
-    isActive: true
-  },
-  {
-    clusterId: 'CLU003',
-    systemId: 'SYS002',
-    name: 'Lotte Cinema Diamond Plaza',
-    address: '34 Lê Duẩn, Quận 1, TP.HCM',
-    phone: '028 3822 8888',
-    facilities: ['DOLBY ATMOS', 'GOLD CLASS'],
-    parking: true,
-    foodCourt: true,
-    isActive: true
-  },
-  {
-    clusterId: 'CLU004',
-    systemId: 'SYS002',
-    name: 'Lotte Cinema Cantavil',
-    address: '1 Sư Vạn Hạnh, Quận 10, TP.HCM',
-    phone: '028 3822 8888',
-    facilities: ['DOLBY ATMOS'],
-    parking: true,
-    foodCourt: false,
-    isActive: true
-  },
-  {
-    clusterId: 'CLU005',
-    systemId: 'SYS003',
-    name: 'Galaxy Cinema Nguyễn Du',
-    address: '116 Nguyễn Du, Quận 1, TP.HCM',
-    phone: '028 3822 8888',
-    facilities: ['STANDARD'],
-    parking: false,
-    foodCourt: true,
-    isActive: true
-  }
-];
-
-export const theaterData = [
-  {
-    hallId: 'H001',
-    clusterId: 'CLU001',
-    name: 'Phòng 1 - IMAX',
-    capacity: 300,
-    screenType: 'IMAX',
-    soundSystem: 'Dolby Atmos',
-    seatLayout: {
-      rows: 15,
-      seatsPerRow: 20,
-      vipRows: [13, 14, 15],
-      coupleSeats: ['H13-14', 'H15-16']
-    },
-    isActive: true
-  },
-  {
-    hallId: 'H002',
-    clusterId: 'CLU001',
-    name: 'Phòng 2 - 4DX',
-    capacity: 120,
-    screenType: '4DX',
-    soundSystem: 'Dolby Atmos',
-    seatLayout: {
-      rows: 10,
-      seatsPerRow: 12,
-      vipRows: [8, 9, 10],
-      coupleSeats: []
-    },
-    isActive: true
-  },
-  {
-    hallId: 'H003',
-    clusterId: 'CLU001',
-    name: 'Phòng 3 - Standard',
-    capacity: 200,
-    screenType: 'Standard',
-    soundSystem: 'Dolby Digital',
-    seatLayout: {
-      rows: 12,
-      seatsPerRow: 17,
-      vipRows: [10, 11, 12],
-      coupleSeats: []
-    },
-    isActive: true
-  },
-  {
-    hallId: 'H004',
-    clusterId: 'CLU002',
-    name: 'Phòng 1 - IMAX',
-    capacity: 350,
-    screenType: 'IMAX',
-    soundSystem: 'Dolby Atmos',
-    seatLayout: {
-      rows: 18,
-      seatsPerRow: 20,
-      vipRows: [15, 16, 17, 18],
-      coupleSeats: ['H15-16', 'H17-18']
-    },
-    isActive: true
-  },
-  {
-    hallId: 'H005',
-    clusterId: 'CLU003',
-    name: 'Phòng 1 - Gold Class',
-    capacity: 80,
-    screenType: 'Gold Class',
-    soundSystem: 'Dolby Atmos',
-    seatLayout: {
-      rows: 8,
-      seatsPerRow: 10,
-      vipRows: [6, 7, 8],
-      coupleSeats: ['H6-7', 'H8-9']
-    },
-    isActive: true
-  }
-];
-
-// Helper functions
-export const getCinemaSystemById = (systemId) => {
-  return cinemaSystemData.find(system => system.systemId === systemId);
-};
+// Helpers
+export const getCinemaSystems = () => cinemaSystems;
 
 export const getClustersBySystem = (systemId) => {
-  return cinemaClusterData.filter(cluster => cluster.systemId === systemId);
+  const sys = cinemaSystems.find((s) => s.systemId === systemId);
+  return sys ? sys.clusters : [];
+};
+
+export const getHallsByCluster = (clusterId) => {
+  for (const sys of cinemaSystems) {
+    const cl = sys.clusters.find((c) => c.clusterId === clusterId);
+    if (cl) return cl.halls;
+  }
+  return [];
+};
+
+// Additional helper functions needed by MovieDetail.jsx
+export const getActiveCinemaSystems = () => cinemaSystems;
+
+export const getActiveClusters = () => {
+  const clusters = [];
+  cinemaSystems.forEach(system => {
+    system.clusters.forEach(cluster => {
+      clusters.push({
+        ...cluster,
+        systemId: system.systemId
+      });
+    });
+  });
+  return clusters;
 };
 
 export const getTheatersByCluster = (clusterId) => {
-  return theaterData.filter(theater => theater.clusterId === clusterId);
-};
-
-export const getActiveCinemaSystems = () => {
-  return cinemaSystemData.filter(system => system.isActive);
-};
-
-export const getActiveClusters = () => {
-  return cinemaClusterData.filter(cluster => cluster.isActive);
+  return getHallsByCluster(clusterId);
 };
 
 export const getActiveTheaters = () => {
-  return theaterData.filter(theater => theater.isActive);
+  const halls = [];
+  cinemaSystems.forEach(system => {
+    system.clusters.forEach(cluster => {
+      cluster.halls.forEach(hall => {
+        halls.push({
+          ...hall,
+          clusterId: cluster.clusterId,
+          systemId: system.systemId
+        });
+      });
+    });
+  });
+  return halls;
 };

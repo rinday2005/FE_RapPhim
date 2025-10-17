@@ -1,235 +1,90 @@
-// Showtimes and booking data for frontend
-export const showtimeData = [
-  {
-    showtimeId: 'ST001',
-    movieId: 'M001',
-    hallId: 'H001',
-    clusterId: 'CLU001',
-    startTime: '14:00',
-    endTime: '17:01',
-    price: 120000,
-    date: '2024-01-15',
-    availableSeats: 280,
-    totalSeats: 300,
-    isActive: true,
-    priceBySeatType: { regular: 120000, vip: 168000 }
-  },
-  {
-    showtimeId: 'ST002',
-    movieId: 'M001',
-    hallId: 'H001',
-    clusterId: 'CLU001',
-    startTime: '17:30',
-    endTime: '20:31',
-    price: 120000,
-    date: '2024-01-15',
-    availableSeats: 250,
-    totalSeats: 300,
-    isActive: true,
-    priceBySeatType: { regular: 120000, vip: 168000 }
-  },
-  {
-    showtimeId: 'ST003',
-    movieId: 'M001',
-    hallId: 'H001',
-    clusterId: 'CLU001',
-    startTime: '21:00',
-    endTime: '00:01',
-    price: 120000,
-    date: '2024-01-15',
-    availableSeats: 200,
-    totalSeats: 300,
-    isActive: true,
-    priceBySeatType: { regular: 120000, vip: 168000 }
-  },
-  {
-    showtimeId: 'ST004',
-    movieId: 'M002',
-    hallId: 'H002',
-    clusterId: 'CLU001',
-    startTime: '15:30',
-    endTime: '17:58',
-    price: 100000,
-    date: '2024-01-15',
-    availableSeats: 100,
-    totalSeats: 120,
-    isActive: true,
-    priceBySeatType: { regular: 100000, vip: 140000 }
-  },
-  {
-    showtimeId: 'ST005',
-    movieId: 'M002',
-    hallId: 'H002',
-    clusterId: 'CLU001',
-    startTime: '19:00',
-    endTime: '21:28',
-    price: 100000,
-    date: '2024-01-15',
-    availableSeats: 80,
-    totalSeats: 120,
-    isActive: true,
-    priceBySeatType: { regular: 100000, vip: 140000 }
-  },
-  {
-    showtimeId: 'ST006',
-    movieId: 'M003',
-    hallId: 'H003',
-    clusterId: 'CLU001',
-    startTime: '16:00',
-    endTime: '18:35',
-    price: 80000,
-    date: '2024-01-15',
-    availableSeats: 150,
-    totalSeats: 200,
-    isActive: true,
-    priceBySeatType: { regular: 80000, vip: 112000 }
-  },
-  {
-    showtimeId: 'ST007',
-    movieId: 'M003',
-    hallId: 'H003',
-    clusterId: 'CLU001',
-    startTime: '20:15',
-    endTime: '22:50',
-    price: 80000,
-    date: '2024-01-15',
-    availableSeats: 120,
-    totalSeats: 200,
-    isActive: true,
-    priceBySeatType: { regular: 80000, vip: 112000 }
-  },
-  {
-    showtimeId: 'ST008',
-    movieId: 'M001',
-    hallId: 'H004',
-    clusterId: 'CLU002',
-    startTime: '14:30',
-    endTime: '17:31',
-    price: 150000,
-    date: '2024-01-15',
-    availableSeats: 300,
-    totalSeats: 350,
-    isActive: true,
-    priceBySeatType: { regular: 150000, vip: 210000 }
-  },
-  {
-    showtimeId: 'ST009',
-    movieId: 'M002',
-    hallId: 'H005',
-    clusterId: 'CLU003',
-    startTime: '18:00',
-    endTime: '20:28',
-    price: 200000,
-    date: '2024-01-15',
-    availableSeats: 60,
-    totalSeats: 80,
-    isActive: true,
-    priceBySeatType: { regular: 200000, vip: 280000 }
-  }
+// Dynamic showtimes generator for frontend (no backend dependency)
+// Provides: getShowtimesByMovie(movieId) → Array<Showtime>
+// Fields used by UI: showtimeId, date (YYYY-MM-DD), clusterId, hallId,
+// startTime, endTime, price, availableSeats, totalSeats
+
+const CLUSTERS = ["A01", "A02", "B01"]; // giả lập mã rạp/cụm
+const HALLS = ["H1", "H2", "H3"]; // giả lập phòng chiếu
+const TIME_SLOTS = [
+  { start: "09:00", end: "11:30" },
+  { start: "13:30", end: "16:00" },
+  { start: "18:00", end: "20:30" },
+  { start: "21:15", end: "23:45" },
 ];
 
-export const seatData = [
-  {
-    seatId: 'A01',
-    hallId: 'H001',
-    row: 'A',
-    number: 1,
-    type: 'standard',
-    status: 'available',
-    price: 0
-  },
-  {
-    seatId: 'A02',
-    hallId: 'H001',
-    row: 'A',
-    number: 2,
-    type: 'standard',
-    status: 'available',
-    price: 0
-  },
-  {
-    seatId: 'H13',
-    hallId: 'H001',
-    row: 'H',
-    number: 13,
-    type: 'couple',
-    status: 'available',
-    price: 50000
-  },
-  {
-    seatId: 'H14',
-    hallId: 'H001',
-    row: 'H',
-    number: 14,
-    type: 'couple',
-    status: 'available',
-    price: 50000
-  },
-  {
-    seatId: 'M15',
-    hallId: 'H001',
-    row: 'M',
-    number: 15,
-    type: 'vip',
-    status: 'booked',
-    price: 100000
+function formatDateYYYYMMDD(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getNextDays(numDays) {
+  const days = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = 0; i < numDays; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    days.push(formatDateYYYYMMDD(d));
   }
-];
+  return days;
+}
 
-export const bookingData = [
-  {
-    bookingId: 'BK001',
-    userId: 'USER001',
-    showtimeId: 'ST001',
-    seatIds: ['M15', 'M16'],
-    bookingTime: '2024-01-15T10:30:00Z',
-    totalAmount: 240000,
-    status: 'confirmed',
-    paymentMethod: 'credit_card',
-    paymentStatus: 'paid'
-  },
-  {
-    bookingId: 'BK002',
-    userId: 'USER002',
-    showtimeId: 'ST002',
-    seatIds: ['A01', 'A02'],
-    bookingTime: '2024-01-15T11:00:00Z',
-    totalAmount: 240000,
-    status: 'pending',
-    paymentMethod: 'cash',
-    paymentStatus: 'pending'
+// Simple deterministic seat availability per movieId/time for stable UI
+function seatsAvailabilityHash(movieId, date, clusterId, startTime) {
+  const base = `${movieId}|${date}|${clusterId}|${startTime}`;
+  let hash = 0;
+  for (let i = 0; i < base.length; i++)
+    hash = (hash * 31 + base.charCodeAt(i)) % 997;
+  const totalSeats = 120;
+  const available = 30 + (hash % 80); // 30..109
+  return { availableSeats: available, totalSeats };
+}
+
+export function getShowtimesByMovie(movieId) {
+  if (!movieId) return [];
+  const dates = getNextDays(7); // 7 ngày tới
+
+  const schedule = [];
+  for (const date of dates) {
+    for (const clusterId of CLUSTERS) {
+      for (const slot of TIME_SLOTS) {
+        const { availableSeats, totalSeats } = seatsAvailabilityHash(
+          movieId,
+          date,
+          clusterId,
+          slot.start
+        );
+
+        const isWeekend = (() => {
+          const [y, m, d] = date.split("-").map((n) => Number(n));
+          const wd = new Date(y, m - 1, d).getDay();
+          return wd === 0 || wd === 6;
+        })();
+        const basePrice = isWeekend ? 120000 : 100000;
+
+        schedule.push({
+          showtimeId: `${movieId}-${date}-${clusterId}-${slot.start.replace(
+            ":",
+            ""
+          )}`,
+          movieId,
+          date,
+          clusterId,
+          hallId:
+            HALLS[
+              (clusterId.charCodeAt(0) + clusterId.charCodeAt(1)) % HALLS.length
+            ],
+          startTime: slot.start,
+          endTime: slot.end,
+          price: basePrice,
+          availableSeats,
+          totalSeats,
+        });
+      }
+    }
   }
-];
 
-// Helper functions
-export const getShowtimesByMovie = (movieId) => {
-  return showtimeData.filter(showtime => showtime.movieId === movieId);
-};
-
-export const getShowtimesByCluster = (clusterId) => {
-  return showtimeData.filter(showtime => showtime.clusterId === clusterId);
-};
-
-export const getShowtimesByDate = (date) => {
-  return showtimeData.filter(showtime => showtime.date === date);
-};
-
-export const getShowtimeById = (showtimeId) => {
-  return showtimeData.find(showtime => showtime.showtimeId === showtimeId);
-};
-
-export const getSeatsByHall = (hallId) => {
-  return seatData.filter(seat => seat.hallId === hallId);
-};
-
-export const getAvailableSeats = (hallId) => {
-  return seatData.filter(seat => seat.hallId === hallId && seat.status === 'available');
-};
-
-export const getBookingsByUser = (userId) => {
-  return bookingData.filter(booking => booking.userId === userId);
-};
-
-export const getBookingById = (bookingId) => {
-  return bookingData.find(booking => booking.bookingId === bookingId);
-};
+  return schedule;
+}

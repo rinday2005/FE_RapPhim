@@ -77,3 +77,14 @@ export default CinemasList;
 
 
 
+
+
+
+
+
+
+
+
+
+
+

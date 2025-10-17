@@ -42,6 +42,8 @@ export const AuthProvider = ({ children }) => {
       
       const { token: newToken, user: userData, role: userRole } = response.data;
       
+      console.log('Login successful:', { userData, userRole, newToken });
+      
       // Store in localStorage
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -51,6 +53,8 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       setUser(userData);
       setRole(userRole);
+      
+      console.log('AuthContext state updated:', { user: userData, role: userRole });
       
       return { success: true, data: response.data };
     } catch (error) {
