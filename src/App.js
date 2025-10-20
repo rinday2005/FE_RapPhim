@@ -10,6 +10,7 @@ import Home from './pages/Home/Home';
 import MovieDetail from './pages/Movies/MovieDetail';
 import Booking from './pages/Movies/Booking';
 import Payment from './pages/Movies/Payment';
+import History from './pages/Movies/History';
 import ConfirmTicket from './pages/Movies/ConfirmTicket';
 import Dashboard from './pages/Admin/Dashboard';
 import CinemaSystemsList from './pages/Admin/CinemaSystems/List';
@@ -57,6 +58,11 @@ const AppContent = () => {
           <Route path="/confirm-ticket" element={
             <ProtectedRoute>
               <ConfirmTicket />
+            </ProtectedRoute>
+          } />
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <History />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />

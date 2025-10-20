@@ -21,13 +21,23 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = () => {
       const storedToken = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      const storedRole = localStorage.getItem('role');
+      const storedUserRaw = localStorage.getItem('user');
+      let storedRole = localStorage.getItem('role');
 
-      if (storedToken && storedUser && storedRole) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        setRole(storedRole);
+      if (storedToken && storedUserRaw) {
+        try {
+          const parsedUser = JSON.parse(storedUserRaw);
+          if (!storedRole && parsedUser?.role) {
+            storedRole = parsedUser.role;
+            localStorage.setItem('role', storedRole);
+          }
+          setToken(storedToken);
+          setUser(parsedUser);
+          if (storedRole) setRole(storedRole);
+        } catch (_) {
+          localStorage.removeItem('user');
+          localStorage.removeItem('role');
+        }
       }
       setLoading(false);
     };
@@ -95,7 +105,7 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is authenticated
   const isAuthenticated = () => {
-    return !!(token && user && role);
+    return !!(token && user);
   };
 
   // Check if user is admin

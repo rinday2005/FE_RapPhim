@@ -102,7 +102,7 @@ const Payment = () => {
       );
       
       // Sau khi confirm thành công, điều hướng đến trang lịch sử
-      navigate('/profile', { state: { tab: 'bookings' } });
+      navigate('/history');
     } catch (err) {
       toast.error("Thanh toán thất bại, vui lòng thử lại");
     } finally {
@@ -112,6 +112,7 @@ const Payment = () => {
 
   const handleMoMoPaymentSuccess = async () => {
     // Khi user xác nhận đã thanh toán MoMo thành công
+    console.log("✅ handleMoMoPaymentSuccess clicked");
     if (!bookingData) return;
     setLoading(true);
     
@@ -119,8 +120,10 @@ const Payment = () => {
       // Confirm booking và unlock seats
       const token = localStorage.getItem("token");
       const user = JSON.parse(localStorage.getItem("user"));
+      console.log("🔐 token present:", Boolean(token), " user:", Boolean(user && user._id));
+      console.log("⏳ Confirming booking...", { lockId: bookingData.lockId, userId: user?._id, total: bookingData.total });
       
-      await axios.post(
+      const resp = await axios.post(
         "http://localhost:5000/api/seat-locks/confirm",
         {
           lockId: bookingData.lockId,
@@ -134,22 +137,29 @@ const Payment = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
-      // Simulate payment success
-      setTimeout(() => {
-        sessionStorage.setItem('paymentData', JSON.stringify({
-          ...bookingData,
-          paymentMethod: "momo",
-          paymentStatus: 'success',
-          transactionId: `MOMO_${Date.now()}`
-        }));
-        // Đóng QR sau khi đã xử lý xong để không bị hiểu nhầm là không bấm được
-        setShowQRCode(false);
-        navigate('/confirm-ticket');
-      }, 1000);
+      console.log("✅ Booking confirmed by backend", resp?.data);
+      // Lưu nhanh dữ liệu và điều hướng ngay
+      sessionStorage.setItem('paymentData', JSON.stringify({
+        ...bookingData,
+        paymentMethod: "momo",
+        paymentStatus: 'success',
+        transactionId: `MOMO_${Date.now()}`
+      }));
+      setShowQRCode(false);
+      console.log("➡️ Navigating to /history");
+      navigate('/history');
     } catch (err) {
       console.error("Confirm booking error:", err);
+      const status = err?.response?.status;
+      // Nếu lock đã hết hạn hoặc đã inactive, vẫn cho điều hướng để user xem lịch sử
+      if (status === 404 || status === 409) {
+        toast("Phiên giữ ghế đã kết thúc hoặc đã xác nhận, chuyển đến lịch sử.");
+        setShowQRCode(false);
+        navigate('/history');
+        return;
+      }
       toast.error("Có lỗi xảy ra khi xác nhận đặt vé");
+    } finally {
       setLoading(false);
     }
   };
